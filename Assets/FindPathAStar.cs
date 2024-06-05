@@ -100,10 +100,74 @@ public class FindPathAStar : MonoBehaviour
         Vector3 goalLocation = new Vector3(locations[1].x * maze.scale, 0, locations[1].z * maze.scale);
         goalNode = new PathMarker(new MapLocation(locations[1].x, locations[1].z), 0, 0, 0,
                                             Instantiate(end, goalLocation, Quaternion.identity), null);
+
+        //after this we can start search
+        open.Clear();
+        closed.Clear();
+        open.Add(startNode);
+        lastPos = startNode;
     }
 
-        // Start is called before the first frame update
-        void Start()
+    void Search(PathMarker thisNode)
+    {
+        //to make sure that pressin C do nothing
+        if (thisNode == null)
+        {
+            return;
+        }
+        //test if we hit the goal
+        if (thisNode.Equals(goalNode))
+        {
+            done = true;
+            return;
+        } //goal has been found
+
+        //loop through and find all neighbours
+        /*public List<MapLocation> directions = new List<MapLocation>() {
+                                            new MapLocation(1,0),
+                                            new MapLocation(0,1),
+                                            new MapLocation(-1,0),
+                                            new MapLocation(0,-1) };*/
+        foreach (MapLocation dir in maze.directions)
+        {
+            //neighbur is just a position on map!
+            MapLocation neighbour = dir + thisNode.location;
+            //если стена - продолжаем
+            if (maze.map[neighbour.x, neighbour.z] == 1) continue;
+            //если выходит за края лабиринта(от 1 да 30)
+            if (neighbour.x < 1 || neighbour.x >= maze.width || neighbour.z < 1 || neighbour.z >= maze.depth) continue;
+            //if neighbour in the closed list
+            if (IsClosed(neighbour)) continue;
+
+            //calculating 
+            //по теореме Пифагора находим расстояние от данной ноды до его соседа
+            float G = Vector2.Distance(thisNode.location.ToVector(), neighbour.ToVector()) + thisNode.G;
+            float H = Vector2.Distance(neighbour.ToVector(), goalNode.location.ToVector());
+            float F = G + H;
+
+            //create object to put on this path
+            GameObject pathBlock = Instantiate(pathP, new Vector3(neighbour.x * maze.scale, 0, neighbour.z * maze.scale), Quaternion.identity);
+
+            //показать значения G,H,F
+            TextMesh[] values = pathBlock.GetComponentsInChildren<TextMesh>();
+
+            values[0].text = "G: " + G.ToString("0.00");
+            values[1].text = "H: " + H.ToString("0.00");
+            values[2].text = "F: " + F.ToString("0.00");
+        }
+    }
+
+    bool IsClosed(MapLocation marker)
+    {
+        foreach (PathMarker p in closed)
+        {
+            if (p.location.Equals(marker)) return true;
+        }
+        return false;
+    }
+
+    // Start is called before the first frame update
+    void Start()
     {
         
     }
