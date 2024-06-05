@@ -160,6 +160,20 @@ public class FindPathAStar : MonoBehaviour
                 open.Add(new PathMarker(neighbour, G, H, F, pathBlock, thisNode));
             }
         }
+        //нужно выбрать тот, который станет следующим узлом
+        //у которого самое низкое значение F.
+        //если оинаковые F, смотрим на Н
+        open = open.OrderBy(p => p.F).ThenBy(n => n.H).ToList<PathMarker>();
+        //выбираем верхний
+        PathMarker pm = (PathMarker)open.ElementAt(0); // Code with violations
+        //добавляем его в список closed
+        closed.Add(pm);
+        //удаляем из open списка
+        open.RemoveAt(0);
+        //перекрашиваем в красный
+        pm.marker.GetComponent<Renderer>().material = closedMaterial;
+        //startPos -> lastPos -> pm
+        lastPos = pm;
     }
 
     //проверяем есть и объект в open list
