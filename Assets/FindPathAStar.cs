@@ -154,7 +154,29 @@ public class FindPathAStar : MonoBehaviour
             values[0].text = "G: " + G.ToString("0.00");
             values[1].text = "H: " + H.ToString("0.00");
             values[2].text = "F: " + F.ToString("0.00");
+
+            if (!UpdateMarker(neighbour, G, H, F, thisNode))
+            {
+                open.Add(new PathMarker(neighbour, G, H, F, pathBlock, thisNode));
+            }
         }
+    }
+
+    //проверяем есть и объект в open list
+    bool UpdateMarker(MapLocation pos, float g, float h, float f, PathMarker prt)
+    {
+        foreach (PathMarker p in open)
+        {
+            if (p.location.Equals(pos))
+            {
+                p.G = g;
+                p.H = h;
+                p.F = f;
+                p.parent = prt;
+                return true;
+            }
+        }
+        return false;
     }
 
     bool IsClosed(MapLocation marker)
@@ -178,6 +200,10 @@ public class FindPathAStar : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.P))
         {
             BeginSearch();
+        }
+        if(Input.GetKeyDown(KeyCode.C) && !done)
+        {
+            Search(lastPos);
         }
     }
 }
